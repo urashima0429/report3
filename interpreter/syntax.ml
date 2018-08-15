@@ -1,34 +1,31 @@
-(* ML interpreter / type reconstruction *)
+open MySet
 
 exception Error of string
 
 let err s = raise (Error s)
 
+(* ML interpreter / type reconstruction *)
 type id = string
 
-type binOp = Plus | Mult | Lt
+type binOp = Plus | Mult | Lt 
+type logicOp = And | Or
 
 type exp =
-  | Var of id (* Var "x" --> x *)
-  | ILit of int (* ILit 3 --> 3 *)
-  | BLit of bool (* BLit true --> true *)
+  | Var of id
+  | ILit of int
+  | BLit of bool
   | BinOp of binOp * exp * exp
-  (* BinOp(Plus, ILit 4, Var "x") --> 4 + x *)
+  | LogicOp of logicOp * exp * exp
   | IfExp of exp * exp * exp
-  (* IfExp(BinOp(Lt, Var "x", ILit 4), 
-           ILit 3, 
-           Var "x") --> 
-     if x<4 then 3 else x *)
-  | LetExp of id * exp * exp
-  | FunExp of id * exp
+  | MultiLetExp of (id * exp) list * exp  
+  | FunExp of id list * exp
   | AppExp of exp * exp
   | LetRecExp of id * id * exp * exp
 
-type program = 
+type program =
     Exp of exp
   | Decl of id * exp
   | RecDecl of id * id * exp
-
 
 type tyvar = int
 
@@ -59,7 +56,7 @@ let rec pp_ty = function
     (pp_ty a;
      print_string " -> ";
      pp_ty b;)
-    
+
 let rec string_of_ty = function
   | TyInt ->  "int"
   | TyBool ->  "bool"
